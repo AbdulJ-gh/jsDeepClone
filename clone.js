@@ -8,11 +8,7 @@ function deepCloneArray(arr){
 	arr.forEach(index => {
 		switch (typeof index) {
 			case 'object':
-				if (Array.isArray(index)) {
-					return deepCloneArray(index)
-				} else {
-					return deepCloneObject(index)
-				}
+				return Array.isArray(index) ? deepCloneArray(index) : deepCloneObject(index)
 			default:
 				break
 		}
@@ -28,11 +24,7 @@ function deepCloneObject(obj){
 	keys.forEach(key => {
 		switch (typeof obj[key]) {
 			case 'object':
-				if (Array.isArray(obj[key])) {
-					return deepCloneArray(clonedObject[key])
-				} else {
-					return deepCloneObject(clonedObject[key])
-				}
+				return Array.isArray(obj[key]) ? deepCloneArray(clonedObject[key]) : deepCloneObject(clonedObject[key])
 			default:
 				break
 		}
