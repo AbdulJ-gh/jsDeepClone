@@ -1,22 +1,23 @@
 export const shallowCloneObject = obj => ({...obj})
 export const shallowCloneArray = arr => [...arr]
+const primitiveTypes = ['number', 'bigint', 'string', 'symbol', 'boolean', 'undefined']
 
 export function deepClonePrimitive(value) {
-	if (value === null) {
-		return null
-	} else {
-		switch (typeof value) {
-			case 'number':
-				return Number(value)
-			case 'string':
-				return String(value)
-			case 'boolean':
-				return Boolean(value)
-			case 'undefined':
-				return undefined
-			default:
-				break
-		}
+	switch (typeof value) {
+		case 'number':
+			return Number(value)
+		case 'bigint':
+			return BigInt(value)
+		case 'string':
+			return String(value)
+		case 'symbol':
+			return Symbol(value)
+		case 'boolean':
+			return Boolean(value)
+		case 'undefined':
+			return undefined
+		default:
+			throw Error(`${value} of type ${typeof value} is not a primitive`)
 	}
 }
 
@@ -25,14 +26,25 @@ export function deepCloneArray(arr){
 	const clonedArray = []
 
 	arr.forEach((item, index) => {
-		if (typeof item !== 'object' || item === null) {
-			clonedArray[index] = deepClonePrimitive(item)
-		} else if (typeof item === 'object') {
-			clonedArray[index] = Array.isArray(item) ? deepCloneArray(item) : deepCloneObject(item)
-		} else {
-			console.log('Deep Clone FAILED')
-			return console.log('EXCEPTION HERE!!!', typeof index, index)
+		if (item === null) {
+			return clonedArray[index] =  null
 		}
+
+		const type = typeof item
+
+		if (primitiveTypes.includes(type)) {
+			return clonedArray[index] = deepClonePrimitive(item)
+		}
+
+		if (type === 'function') {
+			return clonedArray[index] = item
+		}
+
+		if (type === 'object') {
+			return clonedArray[index] = Array.isArray(item) ? deepCloneArray(item) : deepCloneObject(item)
+		}
+
+		throw Error(`Exception, could not deep clone array item of type '${type}'' at index position '${index}''`)
 	})
 	return clonedArray
 }
@@ -42,15 +54,25 @@ export function deepCloneObject(obj){
 	const keys = Object.keys(obj)
 
 	keys.forEach(key => {
-		if (typeof obj[key] !== 'object' || obj[key] === null) {
-			clonedObject[key] = deepClonePrimitive(obj[key])
-		} else if (typeof obj[key] === 'object') {
-			clonedObject[key] = Array.isArray(obj[key]) ? deepCloneArray(obj[key]) : deepCloneObject(obj[key])
-		} else {
-			console.log('Deep Clone FAILED')
-			return console.log('EXCEPTION!!!', typeof obj[key], obj[key])
+		if (obj[key] === null) {
+			return clonedObject[key] = null
 		}
+
+		const type = typeof obj[key]
+
+		if (primitiveTypes.includes(type)) {
+			return clonedObject[key] = deepClonePrimitive(obj[key])
+		}
+
+		if (type === 'function') {
+			return clonedObject[key] = obj[key]
+		}
+
+		if (type === 'object') {
+			return clonedObject[key] = Array.isArray(obj[key]) ? deepCloneArray(obj[key]) : deepCloneObject(obj[key])
+		}
+
+		throw Error(`Exception, could not deep clone object property '${obj[key]}' of type '${type}'`)
 	})
 	return clonedObject
 }
-
